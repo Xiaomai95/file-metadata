@@ -1,14 +1,7 @@
 var express = require('express');
 var cors = require('cors');
-const mongoose = require('mongoose')
 require('dotenv').config()
-
-//Connect to mongoose
-mongoose.connect(process.env.MONGO_URI)
-//Check connection
-mongoose.connection.on('connected', () => {
-  console.log('connected')
-})
+const multer  = require('multer')
 
 var app = express();
 
@@ -19,7 +12,16 @@ app.get('/', function (req, res) {
   res.sendFile(process.cwd() + '/views/index.html');
 });
 
+const upload = multer({dest: './uploads'}) //create /uploads file if none exists (bash: mkdir uploads)
 
+app.post('/api/fileanalyse', upload.single('upfile'), (req, res) => { //filename in upload.single() must match name attribute for input element inside form element
+  
+  return res.json({
+    name: req.file.originalname,
+    type: req.file.mimetype,
+    size: req.file.size
+  })
+})
 
 const port = process.env.PORT || 3000;
 app.listen(port, function () {
